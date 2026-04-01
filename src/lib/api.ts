@@ -10,6 +10,24 @@ type ApiResponse<T> = {
   };
 };
 
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      reject(new Error(`Request timed out after ${ms}ms`));
+    }, ms);
+
+    promise
+      .then((value) => {
+        clearTimeout(timer);
+        resolve(value);
+      })
+      .catch((error) => {
+        clearTimeout(timer);
+        reject(error);
+      });
+  });
+}
+
 export async function apiFetch<T>(
   path: string,
   options: RequestInit = {}
@@ -28,10 +46,13 @@ export async function apiFetch<T>(
 
   const url = `${ENV.API_URL}${path}`;
 
-  const response = await fetch(url, {
-    ...options,
-    headers,
-  });
+  const response = await withTimeout(
+    fetch(url, {
+      ...options,
+      headers,
+    }),
+    10000
+  );
 
   const rawText = await response.text();
 

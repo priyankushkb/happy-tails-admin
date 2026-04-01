@@ -106,7 +106,9 @@ export default function LoginPage() {
               />
             </label>
 
-            {error ? <p style={adminStyles.error}>{error}</p> : null}
+            {error ? (
+              <p style={{ ...adminStyles.error, whiteSpace: 'pre-wrap' }}>{error}</p>
+            ) : null}
 
             <button style={adminStyles.primaryButton} type="submit" disabled={submitting}>
               {submitting ? 'Logging in...' : 'Log in'}
